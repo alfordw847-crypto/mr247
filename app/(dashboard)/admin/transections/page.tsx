@@ -2,30 +2,6 @@
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 import toast from "react-hot-toast";
@@ -35,31 +11,32 @@ export default function PendingOrdersList() {
   const [status, setStatus] = useState<string>("");
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
-  const [pendingOrder, setPendingOrder] = useState([]);
+  const [pendingOrders, setPendingOrders] = useState<any[]>([]);
+
   useEffect(() => {
     const fetchPendingOrder = async () => {
-      const res = await fetch("/api/transections");
-      const data = await res.json();
-      setPendingOrder(data?.data);
+      try {
+        const res = await fetch("/api/transections");
+        const data = await res.json();
+        setPendingOrders(data?.data || []);
+      } catch (err) {
+        console.error(err);
+      }
     };
     fetchPendingOrder();
   }, []);
-  const handleStatusUpdate = async () => {
-    if (!selectedOrder) return;
 
+  const handleStatusUpdate = async (order: any) => {
     startTransition(async () => {
       try {
-        const res = await fetch(`/api/orders/${selectedOrder.id}`, {
-          method: "PUT", // or PATCH
-          headers: {
-            "Content-Type": "application/json",
-          },
+        const res = await fetch(`/api/orders/${order.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             userId: selectedOrder?.user?.id,
             packageId: selectedOrder?.package?.id,
           }),
         });
-
         const data = await res.json();
         router.refresh();
         if (data.success) {
@@ -74,121 +51,82 @@ export default function PendingOrdersList() {
   };
 
   return (
-    <div>
-      <Table className="min-w-full whitespace-nowrap">
-        <TableHeader>
-          <TableRow>
-            <TableHead>User Name</TableHead>
-            <TableHead>Package</TableHead>
-            <TableHead>Price</TableHead>
-            <TableHead>Pending Order</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>Amount</TableHead>
-            <TableHead>TranId</TableHead>
-            <TableHead>Type</TableHead>
-            <TableHead>Account Number</TableHead>
-            <TableHead>Action</TableHead>
-          </TableRow>
-        </TableHeader>
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      {pendingOrders.length === 0 && (
+        <div className="col-span-full text-center text-gray-500 py-10">
+          No pending orders
+        </div>
+      )}
 
-        <TableBody>
-          {pendingOrder && pendingOrder.length > 0 ? (
-            pendingOrder.map((order: any) => (
-              <TableRow key={order.id} className="hover:bg-muted">
-                <TableCell>
-                  <div className="flex gap-3 items-center">
-                    <Avatar>
-                      <AvatarImage src={order?.user?.image || ""} />
-                      <AvatarFallback>
-                        {order?.user?.name?.slice(0, 2)}
-                      </AvatarFallback>
-                    </Avatar>
-                    <span>{order?.user?.name}</span>
-                  </div>
-                </TableCell>
+      {pendingOrders.map((order) => {
+        const transaction = order.transaction?.[0]; // take first transaction
+        return (
+          <div
+            key={order.id}
+            className="bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-xl transition"
+          >
+            {transaction?.purl && (
+              <img
+                src={transaction.purl}
+                alt="Transaction Image"
+                className="w-full h-60 object-cover"
+              />
+            )}
+            <div className="p-4 space-y-3">
+              <div className="flex items-center gap-3">
+                <Avatar>
+                  <AvatarImage src={order?.user?.image || ""} />
+                  <AvatarFallback>
+                    {order?.user?.name?.slice(0, 2)}
+                  </AvatarFallback>
+                </Avatar>
+                <div>
+                  <h2 className="font-semibold">{order?.user?.name}</h2>
+                  <p className="text-sm text-gray-500">{order?.user?.email}</p>
+                </div>
+              </div>
 
-                <TableCell>{order?.package?.name}</TableCell>
-                <TableCell>{order?.package?.price}</TableCell>
-                <TableCell>{order?.pendingOrder}</TableCell>
-                <TableCell>
-                  <span
-                    className={`px-3 py-1 rounded-full text-white ${
-                      order?.pendingOrder > 0 ? "bg-yellow-500" : "bg-green-500"
-                    }`}
-                  >
-                    {order?.pendingOrder > 0 ? "InActive" : "Active"}
-                  </span>
-                </TableCell>
-                <TableCell>{order?.Transaction[0]?.amount}</TableCell>
-                <TableCell>{order?.Transaction[0]?.trnId}</TableCell>
-                <TableCell>{order?.Transaction[0]?.type}</TableCell>
-                <TableCell>{order?.Transaction[0]?.number}</TableCell>
-                <TableCell>
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => {
-                          setSelectedOrder(order);
-                          setStatus(order.status);
-                        }}
-                      >
-                        Edit
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent className="max-w-md">
-                      <DialogHeader>
-                        <DialogTitle>Edit Status</DialogTitle>
-                        <DialogDescription>
-                          Update order status for <b>{order?.user?.name}</b>.
-                        </DialogDescription>
-                      </DialogHeader>
+              <div>
+                <h3 className="font-semibold">
+                  Package name: {order?.package?.name}
+                </h3>
 
-                      <div className="py-4">
-                        <Select
-                          value={status}
-                          onValueChange={(val) => setStatus(val)}
-                        >
-                          <SelectTrigger>
-                            <SelectValue
-                              placeholder="Select status"
-                              defaultValue="InActive"
-                            />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="inactive">InActive</SelectItem>
-                            <SelectItem value="active">Active</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
+                <p className="text-gray-500">
+                  Pending Orders:{" "}
+                  <span className="font-bold">{order?.pendingOrder}</span>
+                </p>
+              </div>
 
-                      <DialogFooter>
-                        <Button
-                          disabled={isPending}
-                          onClick={handleStatusUpdate}
-                          className="w-full"
-                        >
-                          {isPending ? "Updating..." : "Update Status"}
-                        </Button>
-                      </DialogFooter>
-                    </DialogContent>
-                  </Dialog>
-                </TableCell>
-              </TableRow>
-            ))
-          ) : (
-            <TableRow>
-              <TableCell
-                colSpan={10}
-                className="text-center py-6 text-gray-500"
-              >
-                No pending orders
-              </TableCell>
-            </TableRow>
-          )}
-        </TableBody>
-      </Table>
+              <div className="space-y-1 text-gray-700">
+                <p>Transaction ID: {transaction?.trnId}</p>
+                <p>Type: {transaction?.type}</p>
+                <p>Amount: {transaction?.amount} ৳</p>
+                <p>Account Number: {transaction?.number}</p>
+              </div>
+
+              <div className="flex justify-between items-center mt-3">
+                <span
+                  className={`px-3 py-1 rounded-full text-white text-sm ${
+                    order?.pendingOrder > 0 ? "bg-yellow-500" : "bg-green-500"
+                  }`}
+                >
+                  {order?.pendingOrder > 0 ? "InActive" : "Active"}
+                </span>
+                <Button
+                  size="sm"
+                  onClick={() => {
+                    setSelectedOrder(order);
+                    setStatus(order?.status);
+                    handleStatusUpdate(order);
+                  }}
+                >
+                  Update Status
+                </Button>
+              </div>
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
 }

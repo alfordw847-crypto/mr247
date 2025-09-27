@@ -1,4 +1,5 @@
 // app/api/payment-requests/route.ts
+import { AppError } from "@/lib/actions/actions-error-response";
 import prisma from "@/lib/db";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -23,12 +24,11 @@ export async function POST(req: NextRequest) {
       where: { id: userId },
       select: { totalEarnings: true },
     });
-
-    if (!user || user.totalEarnings < amount) {
-      return NextResponse.json(
-        { error: "Insufficient balance" },
-        { status: 400 }
-      );
+    if (!user) {
+      throw new AppError("Unauthorized user", 401);
+    }
+    if (user.totalEarnings < amount) {
+      throw new AppError("Insufficient balance", 400);
     }
 
     // Create payment request (net amount)

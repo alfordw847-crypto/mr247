@@ -63,9 +63,9 @@ export default function ProfileUpdateDialog({
   } = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
-      name: user.name,
-      email: user.email,
-      image: user.image ?? "",
+      name: user?.name || "",
+      email: user?.email || "",
+      image: user?.image ?? "",
       password: "",
       confirmPassword: "",
     },

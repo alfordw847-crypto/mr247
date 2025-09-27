@@ -8,11 +8,10 @@ export { avatar, femaleAvatar };
 export const siteConfig = {
   sidebarBg: "none",
   siteName: "MRK247Earning",
-  name: "Sebadar - Find & Book Doctors Online",
+  name: "MRK247Earning ",
   url: `${process.env.NEXT_PUBLIC_API_URL || ""}`,
-  description:
-    "Find and book appointments with top-rated doctors by specialty, location, and availability. Read verified patient reviews.",
-  author: "Sebadar Team",
+  description: "Show ads and earn money.",
+  author: "MRK247Earning Team",
 
   // SEO Enhancements
   googleSiteVerification: "ABC123XYZ",

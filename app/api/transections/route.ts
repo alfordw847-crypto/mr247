@@ -26,12 +26,13 @@ export async function GET(req: Request) {
               image: true,
             },
           },
-          Transaction: {
+          transaction: {
             select: {
               trnId: true,
               number: true,
               amount: true,
               type: true,
+              purl: true,
             },
           },
           user: {

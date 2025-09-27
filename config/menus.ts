@@ -1,4 +1,11 @@
-import { Image, ShoppingCart, Users, Wallet } from "lucide-react";
+import {
+  Image,
+  Phone,
+  PlayCircle,
+  ShoppingCart,
+  Users,
+  Wallet,
+} from "lucide-react";
 
 export interface MenuItemProps {
   title?: string;
@@ -38,6 +45,16 @@ export const adminConfig: MenuItemProps[] = [
     title: "Payment Requests",
     icon: Wallet,
     href: "payment-request",
+  },
+  {
+    title: "Numbers",
+    icon: Phone,
+    href: "numbers",
+  },
+  {
+    title: "Ads",
+    icon: PlayCircle,
+    href: "ads",
   },
   {
     title: "Banners",

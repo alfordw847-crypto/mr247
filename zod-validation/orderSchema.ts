@@ -4,6 +4,7 @@ export const OrderSchema = z.object({
   userId: z.string().min(1, { message: "User ID is required" }),
   packageId: z.string().min(1, { message: "Package ID is required" }),
 
+  purl: z.string().url("Invalid url").optional(),
   type: z.string().min(1, "order id required"),
   tranId: z.string().min(1, "tranId id required"),
   amount: z.number().min(1, "number is requirent"),

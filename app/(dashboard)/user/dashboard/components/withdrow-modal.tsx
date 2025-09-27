@@ -1,4 +1,3 @@
-// components/WithdrawalDialog.tsx
 "use client";
 
 import {
@@ -16,14 +15,16 @@ import withdraw from "@/public/icons/withdraw.png";
 import { User } from "@prisma/client";
 import Image from "next/image";
 import { useState } from "react";
+import toast from "react-hot-toast";
 
 interface WithdrawalDialogProps {
   trigger?: React.ReactNode;
   user: User;
 }
-const now = new Date();
-const hours = now.getHours();
-const isWithinTime = hours >= 8 && hours < 22;
+
+const MIN_WITHDRAW = 900;
+const MAX_WITHDRAW = 25000;
+
 export default function WithdrawalDialog({ user }: WithdrawalDialogProps) {
   const [amount, setAmount] = useState("");
   const [type, setType] = useState("");
@@ -31,25 +32,46 @@ export default function WithdrawalDialog({ user }: WithdrawalDialogProps) {
   const [isProcessing, setIsProcessing] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
 
+  const now = new Date();
+  const hours = now.getHours();
+  const isWithinTime = hours >= 8 && hours < 22;
+
+  const quickAmounts = [900, 1000, 2000, 5000, 10000, 20000];
+
   const handleWithdrawal = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!amount || !type) return;
+    const withdrawAmount = Number(amount);
 
-    // Withdrawal only allowed 8AM - 10PM
-    const now = new Date();
-    const hour = now.getHours();
-    if (hour < 8 || hour >= 22) {
-      alert("Withdrawals are only allowed between 8:00 AM - 10:00 PM.");
+    // Validation
+    if (!type) {
+      toast.error("Please select a payment method");
+      return;
+    }
+    if (isNaN(withdrawAmount) || withdrawAmount < MIN_WITHDRAW) {
+      toast.error(`Minimum withdrawal amount is ৳${MIN_WITHDRAW}`);
+      return;
+    }
+    if (withdrawAmount > MAX_WITHDRAW) {
+      toast.error(`Maximum withdrawal amount is ৳${MAX_WITHDRAW}`);
+      return;
+    }
+    if (withdrawAmount > (user?.totalEarnings || 0)) {
+      toast.error("Insufficient balance");
+      return;
+    }
+    if (!isWithinTime) {
+      toast.error("Withdrawals are only allowed between 8:00 AM – 10:00 PM.");
       return;
     }
 
     setIsProcessing(true);
 
+    const toastId = toast.loading("Processing withdrawal...");
+
     try {
-      const withdrawalAmount = Number(amount);
-      const fee = withdrawalAmount * 0.1;
-      const finalAmount = withdrawalAmount - fee;
+      const fee = withdrawAmount * 0.1;
+      const finalAmount = withdrawAmount - fee;
 
       const res = await fetch("/api/payment-request", {
         method: "POST",
@@ -62,33 +84,34 @@ export default function WithdrawalDialog({ user }: WithdrawalDialogProps) {
         }),
       });
 
-      if (!res.ok) {
-        throw new Error("Failed to create withdrawal request");
-      }
+      if (!res.ok) throw new Error("Failed to create withdrawal request");
 
       const data = await res.json();
 
-      console.log("Withdrawal successful", data);
-
-      alert(
-        `Withdrawal Request Created!\nAmount: ${withdrawalAmount} ৳\nFee: ${fee.toFixed(
+      toast.success(
+        `Withdrawal Request Created!\nAmount: ${withdrawAmount} ৳\nFee: ${fee.toFixed(
           2
-        )} ৳\nYou’ll receive: ${finalAmount.toFixed(2)} ৳`
+        )} ৳\nYou’ll receive: ${finalAmount.toFixed(2)} ৳`,
+        { id: toastId, duration: 5000 }
       );
 
       // Reset form
       setAmount("");
       setType("");
+      setNumber("");
       setIsOpen(false);
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      alert("Something went wrong while processing your withdrawal.");
+      toast.error(
+        err.message || "Something went wrong while processing your withdrawal.",
+        {
+          id: toastId,
+        }
+      );
     } finally {
       setIsProcessing(false);
     }
   };
-
-  const quickAmounts = [500, 1000, 2000, 5000, 10000, 20000];
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -105,18 +128,16 @@ export default function WithdrawalDialog({ user }: WithdrawalDialogProps) {
               />
             </div>
           </div>
-          <span className="text-gray-600    text-lg tracking-tight">
-            Withdraw
-          </span>
+          <span className="text-gray-600 text-lg tracking-tight">Withdraw</span>
         </div>
       </DialogTrigger>
 
-      <DialogContent className="max-w-md w-full p-0 overflow-hidden rounded-2xl border-0 shadow-2xl bg-white h-[90vh]  ">
+      <DialogContent className="max-w-md w-full p-0 overflow-hidden rounded-2xl border-0 shadow-2xl bg-white h-[90vh]">
         {/* Header */}
         <DialogHeader
           className={cn(
             "bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 px-6 py-5",
-            "sticky top-0 z-10" // Sticky header for mobile scrolling
+            "sticky top-0 z-10"
           )}
         >
           <div className="flex items-center justify-between">
@@ -151,8 +172,8 @@ export default function WithdrawalDialog({ user }: WithdrawalDialogProps) {
           </div>
         </DialogHeader>
 
+        {/* Form */}
         <div className="max-h-[90vh] overflow-y-auto">
-          {/* Main Content */}
           <form onSubmit={handleWithdrawal} className="p-6 space-y-6">
             {/* Balance */}
             <div className="text-center p-4 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-200">
@@ -163,58 +184,52 @@ export default function WithdrawalDialog({ user }: WithdrawalDialogProps) {
                 {user?.totalEarnings} ৳
               </div>
             </div>
-            {/* Amount */}
-            <div className="space-y-3">
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Withdrawal Amount
-              </label>
 
-              {/* Quick Amounts */}
-              <div className="grid grid-cols-3 gap-2 mb-3">
-                {quickAmounts.map((quickAmount) => (
-                  <button
-                    key={quickAmount}
-                    type="button"
-                    disabled={quickAmount > (user?.totalEarnings || 0)} // ✅ Disable only if button > balance
-                    onClick={() => setAmount(quickAmount.toString())}
-                    className={`p-2 text-sm font-medium rounded-lg border transition-all ${
-                      amount === quickAmount.toString()
-                        ? "bg-blue-500 text-white border-blue-500"
-                        : "bg-gray-100 text-gray-700 border-gray-200 hover:bg-gray-200"
-                    } ${
-                      quickAmount > (user?.totalEarnings || 0)
-                        ? "opacity-50 cursor-not-allowed"
-                        : ""
-                    }`}
-                  >
-                    ৳ {quickAmount.toLocaleString()}
-                  </button>
-                ))}
-              </div>
+            {/* Quick Amounts */}
+            <div className="grid grid-cols-3 gap-2 mb-3">
+              {quickAmounts.map((quickAmount) => (
+                <button
+                  key={quickAmount}
+                  type="button"
+                  disabled={quickAmount > (user?.totalEarnings || 0)}
+                  onClick={() => setAmount(quickAmount.toString())}
+                  className={`p-2 text-sm font-medium rounded-lg border transition-all ${
+                    amount === quickAmount.toString()
+                      ? "bg-blue-500 text-white border-blue-500"
+                      : "bg-gray-100 text-gray-700 border-gray-200 hover:bg-gray-200"
+                  } ${
+                    quickAmount > (user?.totalEarnings || 0)
+                      ? "opacity-50 cursor-not-allowed"
+                      : ""
+                  }`}
+                >
+                  ৳ {quickAmount.toLocaleString()}
+                </button>
+              ))}
+            </div>
 
-              <div className="relative">
-                <input
-                  type="number"
-                  value={amount}
-                  disabled={(user?.totalEarnings || 0) < 400}
-                  onChange={(e) => setAmount(e.target.value)}
-                  placeholder="Enter withdrawal amount"
-                  className="w-full px-4 py-3 text-lg rounded-xl border-2 border-gray-200 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-                  min="400"
-                  max={user?.totalEarnings || 40000}
-                  required
-                />
-                <div className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 font-semibold">
-                  BDT
-                </div>
-              </div>
-
-              <div className="flex justify-between text-xs text-gray-500">
-                <span>Min: ৳400</span>
-                <span>Max: ৳40,000</span>
+            {/* Amount Input */}
+            <div className="relative">
+              <input
+                type="number"
+                value={amount}
+                disabled={(user?.totalEarnings || 0) < MIN_WITHDRAW}
+                onChange={(e) => setAmount(e.target.value)}
+                placeholder="Enter withdrawal amount"
+                className="w-full px-4 py-3 text-lg rounded-xl border-2 border-gray-200 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                min={MIN_WITHDRAW}
+                max={MAX_WITHDRAW}
+                required
+              />
+              <div className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 font-semibold">
+                BDT
               </div>
             </div>
-            {/* Password */}
+            <div className="flex justify-between text-xs text-gray-500">
+              <span>Min: ৳{MIN_WITHDRAW}</span>
+              <span>Max: ৳{MAX_WITHDRAW}</span>
+            </div>
+
             {/* Payment Type */}
             <div className="space-y-2">
               <label className="block text-sm font-semibold text-gray-700">
@@ -222,7 +237,7 @@ export default function WithdrawalDialog({ user }: WithdrawalDialogProps) {
               </label>
               <select
                 value={type}
-                disabled={(user?.totalEarnings || 0) < 400}
+                disabled={(user?.totalEarnings || 0) < MIN_WITHDRAW}
                 onChange={(e) => setType(e.target.value)}
                 className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
                 required
@@ -234,13 +249,14 @@ export default function WithdrawalDialog({ user }: WithdrawalDialogProps) {
               </select>
               <input
                 type="number"
-                disabled={(user?.totalEarnings || 0) < 400}
+                disabled={user?.totalEarnings < MIN_WITHDRAW}
                 onChange={(e) => setNumber(e.target.value)}
                 placeholder={`Enter ${type} number`}
                 className="w-full px-4 py-3 text-lg rounded-xl border-2 border-gray-200 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
                 required
               />
             </div>
+
             {/* Fee Calculation */}
             {amount && (
               <div className="p-4 bg-yellow-50 rounded-xl border border-yellow-200">
@@ -266,9 +282,7 @@ export default function WithdrawalDialog({ user }: WithdrawalDialogProps) {
                 </div>
               </div>
             )}
-            {/* Promo */}
 
-            {/* Submit */}
             {/* Submit */}
             <button
               type="submit"
@@ -277,7 +291,7 @@ export default function WithdrawalDialog({ user }: WithdrawalDialogProps) {
                 !type ||
                 isProcessing ||
                 !isWithinTime ||
-                (user?.totalEarnings || 0) < 400
+                (user?.totalEarnings || 0) < MIN_WITHDRAW
               }
               className={`w-full py-4 font-semibold rounded-xl shadow-lg transition-all active:scale-95 flex items-center justify-center gap-2
     ${
@@ -286,34 +300,11 @@ export default function WithdrawalDialog({ user }: WithdrawalDialogProps) {
         : "bg-gradient-to-r from-red-500 to-orange-600 text-white hover:from-red-600 hover:to-orange-700"
     }`}
             >
-              {isProcessing ? (
-                <>
-                  <svg
-                    className="animate-spin h-5 w-5 text-white"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    ></circle>
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    ></path>
-                  </svg>
-                  Processing...
-                </>
-              ) : !isWithinTime ? (
-                <>⏰ Withdrawals allowed 8:00 AM – 10:00 PM</>
-              ) : (
-                <>💰 Withdraw</>
-              )}
+              {isProcessing
+                ? "Processing..."
+                : !isWithinTime
+                ? "⏰ Withdrawals allowed 8:00 AM – 10:00 PM"
+                : "💰 Withdraw"}
             </button>
           </form>
 
@@ -323,9 +314,9 @@ export default function WithdrawalDialog({ user }: WithdrawalDialogProps) {
               📋 Withdrawal Rules
             </h3>
             <ul className="space-y-2 text-xs text-gray-700">
-              <li>• Withdrawal time: Mon–Fri, 10:00 AM – 5:00 PM</li>
-              <li>• Minimum per transaction: ৳400</li>
-              <li>• Maximum per transaction: ৳40,000</li>
+              <li>• Withdrawal time: 8:00 AM – 10:00 PM</li>
+              <li>• Minimum per transaction: ৳{MIN_WITHDRAW}</li>
+              <li>• Maximum per transaction: ৳{MAX_WITHDRAW}</li>
               <li>• Fee: 10% will be deducted</li>
               <li>• Invalid info will cancel your request</li>
               <li>• Processing time: up to 24 hours</li>

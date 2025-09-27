@@ -44,11 +44,13 @@ export async function POST(req: Request) {
     await prisma.transaction.create({
       data: {
         orderId: order?.id,
+        userId: validateData.userId,
         amount: validateData.amount,
         status: "pending",
         number: validateData?.number,
         trnId: validateData?.tranId,
         type: validateData?.type,
+        purl: validateData?.purl,
       },
     });
 

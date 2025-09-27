@@ -28,6 +28,7 @@ model User {
   accounts        Account[]
   sessions        Session[]
   adView          AdView[]
+  transaction     Transaction[]
 
   // Referral relations
   referralsMade Referral[] @relation("ReferrerReferrals")
@@ -82,7 +83,7 @@ model Order {
 
   user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   package     Package       @relation(fields: [packageId], references: [id], onDelete: Cascade)
-  Transaction Transaction[]
+  transaction Transaction[]
 
   @@index([userId])
   @@index([packageId])
@@ -91,17 +92,21 @@ model Order {
 model Transaction {
   id        String   @id @default(cuid())
   orderId   String
+  userId    String
   type      String
   amount    Float
   number    String?
+  purl      String?
   trnId     String
   status    String   @default("pending")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([orderId])
+  @@index([userId])
 }
 
 // Ads (global)
@@ -109,6 +114,15 @@ model Ad {
   id        String   @id @default(cuid())
   name      String?
   url       String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model MobileNUmbers {
+  id        String   @id @default(cuid())
+  number    String
+  type      String
+  bankName  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
