@@ -13,11 +13,11 @@ const SpecialtiesCarousel = () => {
     const fetchBanners = async () => {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/banners`);
       const banners = await res.json();
-      setBanners(banners?.data);
+      setBanners(banners?.data?.data);
     };
     fetchBanners();
   }, []);
-
+  console.log(banners);
   return (
     <motion.section className="bg-card/30   ">
       {/* Carousel */}
