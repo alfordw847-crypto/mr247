@@ -76,7 +76,7 @@ export default function AddBannerDialog() {
                 control={control}
               />
               <CustomFormField
-                fieldType={FormFieldType.INPUT}
+                fieldType={FormFieldType.FILE_UPLOAD}
                 label="Banner Image"
                 name="url"
                 placeholder="Enter  banner url "

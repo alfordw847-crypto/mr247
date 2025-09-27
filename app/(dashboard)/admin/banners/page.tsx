@@ -6,7 +6,7 @@ export default async function page() {
     `${process.env.NEXT_PUBLIC_API_URL}/api/banners`
   );
   const banners = await bannersResponse.json();
-
+  console.log(banners);
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
