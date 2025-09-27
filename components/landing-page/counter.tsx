@@ -1,6 +1,6 @@
 "use client";
 import { motion, useInView } from "framer-motion";
-import { DollarSign, MonitorPlay, Users } from "lucide-react";
+import { Banknote, MonitorPlay, Users } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 const CounterCard = ({
@@ -69,7 +69,7 @@ export default function StatsCounters() {
   const stats = [
     { icon: Users, label: "Active Members", value: 12 },
     { icon: MonitorPlay, label: "Ads Displayed", value: 8 },
-    { icon: DollarSign, label: "Total Earnings", value: 250 },
+    { icon: Banknote, label: "Total Earnings", value: 250 },
   ];
 
   return (

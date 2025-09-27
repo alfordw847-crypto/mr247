@@ -12,32 +12,12 @@ export interface MenuItemProps {
   isHeader?: boolean;
 }
 
-// export const menus = [
-//   {
-//     title: "login ",
-//     href: "",
-//   },
-//   {
-//     title: "login ",
-//     href: "",
-//   },
-//   {
-//     title: "login ",
-//     href: "",
-//   },
-//   {
-//     title: "login ",
-//     href: "",
-//   },
-//   {
-//     title: "login ",
-//     href: "",
-//   },
-//   {
-//     title: "login ",
-//     href: "",
-//   },
-// ];
+export const menus = [
+  {
+    title: "login ",
+    href: "",
+  },
+];
 export const adminConfig: MenuItemProps[] = [
   {
     title: "Users",

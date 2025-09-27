@@ -12,7 +12,7 @@ export default function LandingPage() {
     <main className="min-h-screen flex flex-col ">
       <Header />
       {/* Hero Banner */}
-      <section className="relative bg-gradient-to-tr from-purple-700 via-indigo-600 to-pink-700 text-white px-6 py-24 text-center">
+      <section className="relative h-screen bg-gradient-to-tr from-purple-700 via-indigo-600 to-pink-700 text-white px-6 py-24 flex flex-col items-center justify-center text-center">
         <h1 className="text-4xl md:text-6xl font-extrabold mb-6">
           Grow Your Business with Smart Ads
         </h1>
