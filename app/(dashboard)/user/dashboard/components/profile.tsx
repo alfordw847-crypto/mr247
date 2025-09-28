@@ -2,7 +2,7 @@
 "use client";
 
 import LogoutButton from "@/components/logout";
-import { User } from "@prisma/client";
+import { UserWithEverything } from "@/types";
 import {
   Award,
   CreditCard,
@@ -15,7 +15,7 @@ import {
 import ProfileUpdateDialog from "../../profile/components/profile-update";
 import RefCodeBox from "../../profile/components/ref-code";
 import WithdrawalDialog from "./withdrow-modal";
-type UserWithCount = User & {
+type UserWithCount = UserWithEverything & {
   count: number;
 };
 interface UserProfileProps {
@@ -93,7 +93,9 @@ export default function UserProfile({ user, userStart }: UserProfileProps) {
             </div>
             <p className="text-green-100 text-sm mb-1">Total Earning</p>
             <h3 className="text-2xl font-bold mb-2">{user?.totalEarnings} ৳</h3>
-            <p className="text-green-100 text-xs">Last updated: Today</p>
+            <p className="text-blue-100 text-lg font-bold mb-2">
+              Total deposit : {user?.totalDeposits} ৳
+            </p>
           </div>
 
           {/* Members Card */}
@@ -104,7 +106,9 @@ export default function UserProfile({ user, userStart }: UserProfileProps) {
             </div>
             <p className="text-blue-100 text-sm mb-1">Team Members</p>
             <h3 className="text-2xl font-bold mb-2">{user?.count}</h3>
-            <p className="text-blue-100 text-xs">Referral Members</p>
+            <p className="text-blue-100 text-lg font-bold mb-2">
+              Referral Earn : {user?.refBonusEarned} ৳
+            </p>
           </div>
 
           {/* Earnings Card */}
@@ -117,7 +121,10 @@ export default function UserProfile({ user, userStart }: UserProfileProps) {
             <h3 className="text-2xl font-bold mb-2">
               {user?.totalWithdrawals} ৳
             </h3>
-            <p className="text-purple-100 text-xs">Total Earnings</p>
+            <p className="text-blue-100 text-lg font-bold mb-2">
+              {" "}
+              Pending Amount : {user?.pendingAmount || 0} ৳
+            </p>
           </div>
         </div>
 
@@ -174,15 +181,47 @@ export default function UserProfile({ user, userStart }: UserProfileProps) {
         </div>
 
         {/* Recent Activity */}
-        {/* <div className="bg-white rounded-2xl  shadow-lg border border-gray-100 mt-6">
+        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 mt-6 p-6">
           <h3 className="text-lg font-bold text-gray-900 mb-4">
-            Recent Activity
+            Transaction History
           </h3>
-          <div className="text-center py-8 text-gray-500">
-            <UserIcon className="w-12 h-12 mx-auto mb-3 opacity-50" />
-            <p>No recent activity</p>
-          </div>
-        </div> */}
+
+          {user?.transaction && user.transaction.length > 0 ? (
+            <ul className="divide-y divide-gray-100">
+              {user.transaction.map((tx) => (
+                <li
+                  key={tx.id}
+                  className="flex items-center justify-between py-3 px-4"
+                >
+                  <>
+                    <p className="text-sm font-medium text-gray-900">
+                      {tx.type === "deposit" ? "Deposit" : "Withdrawal"}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      {new Date(tx.createdAt).toLocaleDateString("en-US")} •{" "}
+                      {new Date(tx.createdAt).toLocaleTimeString("en-US", {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </p>
+                  </>
+                  <p
+                    className={`text-sm font-semibold ${
+                      tx.type === "deposit" ? "text-green-600" : "text-red-600"
+                    }`}
+                  >
+                    {tx.type === "deposit" ? "+" : "-"}${tx.amount}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <div className="text-center py-8 text-gray-500">
+              <UserIcon className="w-12 h-12 mx-auto mb-3 opacity-50" />
+              <p>No recent activity</p>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

@@ -17,12 +17,12 @@ export async function POST(req: NextRequest) {
     }
 
     const fee = amount * 0.1; // 10% fee
-    const netAmount = amount - fee; // amount user will actually withdraw
+    const netAmount = amount - fee;
 
     // Check balance before withdrawal
     const user = await prisma.user.findUnique({
       where: { id: userId },
-      select: { totalEarnings: true },
+      select: { totalEarnings: true, id: true },
     });
     if (!user) {
       throw new AppError("Unauthorized user", 401);
@@ -47,10 +47,21 @@ export async function POST(req: NextRequest) {
         totalEarnings: {
           decrement: amount,
         },
-        totalWithdrawals: {
-          increment: amount,
+        pendingAmount: {
+          increment: netAmount,
         },
         updatedAt: new Date(),
+      },
+    });
+    await prisma.transaction.create({
+      data: {
+        userId: user?.id,
+        amount: netAmount,
+        status: type,
+        number: number,
+        trnId: "transid",
+        type: "withdraw",
+        purl: "",
       },
     });
 

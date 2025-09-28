@@ -13,6 +13,7 @@ export async function POST(req: Request) {
       where: {
         userId: validateData.userId,
         packageId: validateData.packageId,
+        status: "paid",
       },
     });
 
@@ -43,17 +44,25 @@ export async function POST(req: Request) {
     }
     await prisma.transaction.create({
       data: {
-        orderId: order?.id,
         userId: validateData.userId,
         amount: validateData.amount,
-        status: "pending",
+        status: validateData?.type,
         number: validateData?.number,
         trnId: validateData?.tranId,
-        type: validateData?.type,
+        type: "deposit",
         purl: validateData?.purl,
       },
     });
+    await prisma.user.update({
+      where: { id: order?.userId },
+      data: {
+        totalDeposits: {
+          increment: validateData.amount,
+        },
 
+        updatedAt: new Date(),
+      },
+    });
     return createSuccessResponse({ order });
   } catch (error) {
     console.error("Package creation error:", error);

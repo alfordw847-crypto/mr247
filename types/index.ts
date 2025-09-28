@@ -13,3 +13,18 @@ export type OrderWithPackage = Prisma.OrderGetPayload<{
 export type OrderWithPackageAndUser = Prisma.OrderGetPayload<{
   include: { package: true; user: true };
 }>;
+
+export type UserWithEverything = Prisma.UserGetPayload<{
+  include: {
+    orders: {
+      include: { package: true };
+    };
+    paymentRequests: true;
+    accounts: true;
+    sessions: true;
+    adView: true;
+    transaction: true;
+    referralsMade: true;
+    referralsGot: true;
+  };
+}>;

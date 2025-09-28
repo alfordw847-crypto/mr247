@@ -12,8 +12,6 @@ const Page = () => {
         <Balance />
         <Products />
       </div>
-
-      {/* Bottom Navigation */}
     </div>
   );
 };

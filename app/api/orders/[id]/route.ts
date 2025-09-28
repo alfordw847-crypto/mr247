@@ -16,9 +16,12 @@ export async function PUT(req: Request) {
       where: {
         userId,
         packageId,
+        OR: [{ status: "pending" }, { pendingOrder: { gt: 0 } }],
       },
     });
-
+    if (!order) {
+      throw new AppError("No found pending order", 404);
+    }
     if (order) {
       // update existing order
       order = await prisma.order.update({
@@ -29,17 +32,8 @@ export async function PUT(req: Request) {
           numOfPur: (order.numOfPur ?? 0) + 1,
         },
       });
-    } else {
-      // create new order
-      order = await prisma.order.create({
-        data: {
-          userId,
-          packageId,
-          status: "paid",
-          numOfPur: 1,
-        },
-      });
     }
+
     const user = await prisma.user.findUnique({
       where: { id: userId },
     });

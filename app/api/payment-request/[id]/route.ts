@@ -30,24 +30,24 @@ export async function PUT(
       );
     }
 
-    // Update user balance if approved
-    if (status === "approved") {
-      await prisma.user.update({
-        where: { id: paymentRequest.userId },
-        data: {
-          totalWithdrawals: { increment: paymentRequest.amount },
-          totalEarnings: { decrement: paymentRequest.amount },
-          updatedAt: new Date(),
-        },
-      });
-    }
-
     // Update payment request status
     const updatedRequest = await prisma.paymentRequest.update({
       where: { id },
       data: { status },
     });
 
+    await prisma.user.update({
+      where: { id: updatedRequest?.userId },
+      data: {
+        totalWithdrawals: {
+          increment: updatedRequest?.amount,
+        },
+        pendingAmount: {
+          decrement: updatedRequest?.amount,
+        },
+        updatedAt: new Date(),
+      },
+    });
     return NextResponse.json({ success: true, data: updatedRequest });
   } catch (error) {
     console.error("Error updating payment request:", error);

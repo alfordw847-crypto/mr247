@@ -37,9 +37,9 @@ export const adminConfig: MenuItemProps[] = [
     href: "packages",
   },
   {
-    title: "Pending Transactions",
+    title: "Pending Order",
     icon: Wallet,
-    href: "transections",
+    href: "pending-orders",
   },
   {
     title: "Payment Requests",

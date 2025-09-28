@@ -14,6 +14,7 @@ import { cn } from "@/lib/utils";
 import withdraw from "@/public/icons/withdraw.png";
 import { User } from "@prisma/client";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import toast from "react-hot-toast";
 
@@ -31,7 +32,7 @@ export default function WithdrawalDialog({ user }: WithdrawalDialogProps) {
   const [number, setNumber] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
-
+  const router = useRouter();
   const now = new Date();
   const hours = now.getHours();
   const isWithinTime = hours >= 8 && hours < 22;
@@ -78,7 +79,7 @@ export default function WithdrawalDialog({ user }: WithdrawalDialogProps) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           userId: user?.id,
-          amount: finalAmount,
+          amount: withdrawAmount,
           number,
           type,
         }),
@@ -95,6 +96,7 @@ export default function WithdrawalDialog({ user }: WithdrawalDialogProps) {
         { id: toastId, duration: 5000 }
       );
 
+      router.refresh();
       // Reset form
       setAmount("");
       setType("");

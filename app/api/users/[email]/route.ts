@@ -84,6 +84,8 @@ export async function GET(
         refBonusEarned: true,
         totalWithdrawals: true,
         refCode: true,
+        transaction: true,
+        pendingAmount: true,
       },
     });
 

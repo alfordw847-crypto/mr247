@@ -23,12 +23,7 @@ interface AdDialogProps {
   setRemaining: any;
 }
 
-export default function AdDialog({
-  userId,
-  packageId,
-  remaining,
-  setRemaining,
-}: AdDialogProps) {
+export default function AdDialog({ userId, packageId }: AdDialogProps) {
   const [ads, setAds] = useState<Ad[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -36,7 +31,7 @@ export default function AdDialog({
   const [loadingAds, setLoadingAds] = useState(true);
   const [loadingBalance, setLoadingBalance] = useState(true);
   const [isWatching, setIsWatching] = useState(false);
-
+  const [remaining, setRemaining] = useState(0);
   const currentAd = ads[currentIndex];
 
   // Fetch daily ads

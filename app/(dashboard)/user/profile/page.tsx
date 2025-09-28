@@ -10,6 +10,7 @@ export default async function page() {
     redirect("/");
   }
   const userData = await getUser(user?.email);
+
   const userStarts = await getUserStats(user?.id);
 
   return <UserProfile user={userData?.user} userStart={userStarts} />;

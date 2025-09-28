@@ -1,6 +1,7 @@
-import { errorResponse, successResponse } from "@/lib/api/api-response";
+import { createSuccessResponse, errorResponse } from "@/lib/api/api-response";
 import prisma from "@/lib/db";
 export const dynamic = "force-dynamic";
+
 export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
@@ -18,21 +19,9 @@ export async function GET(req: Request) {
           OR: [{ status: "pending" }, { pendingOrder: { gt: 0 } }],
         },
         include: {
-          package: {
-            select: {
-              name: true,
-              id: true,
-              price: true,
-              image: true,
-            },
-          },
-
+          package: true,
           user: {
-            select: {
-              id: true,
-              name: true,
-              totalEarnings: true,
-              totalWithdrawals: true,
+            include: {
               transaction: true,
             },
           },
@@ -43,12 +32,21 @@ export async function GET(req: Request) {
       }),
       prisma.order.count({
         where: {
-          OR: [{ status: "pending" }, { status: "paid" }],
+          status: "pending",
+          pendingOrder: { gt: 0 },
         },
       }),
     ]);
 
-    return successResponse(orders);
+    return createSuccessResponse({
+      data: orders,
+      pagination: {
+        total: totalCount,
+        page: pageNumber,
+        limit: pageSize,
+        totalPages: Math.ceil(totalCount / pageSize),
+      },
+    });
   } catch (error) {
     console.error("Package retrieval error:", error);
     return errorResponse(error);
