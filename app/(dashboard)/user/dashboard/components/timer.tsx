@@ -67,11 +67,11 @@ export default function DigitalTimer() {
       <h2 className="text-xl font-bold">Website Runtime</h2>
 
       {/* Timer display */}
-      <div className="flex gap-2">
+      <div className="flex flex-wrap gap-2">
         {timeUnits.map((unit, idx) => (
           <div
             key={idx}
-            className="bg-black/70 px-4 py-2 rounded-lg shadow-lg text-center min-w-[60px]"
+            className="bg-black/70 px-4 py-2 rounded-lg shadow-lg text-center min-w-[20px]"
           >
             <p className="text-xl font-mono font-bold">
               {String(unit.value).padStart(2, "0")}

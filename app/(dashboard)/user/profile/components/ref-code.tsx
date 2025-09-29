@@ -17,12 +17,12 @@ export default function RefCodeBox({ refCode }: RefCodeProps) {
   };
 
   return (
-    <div className="flex items-center gap-2 bg-purple-50 p-3 rounded-xl">
+    <div className="flex items-center gap-2 bg-purple-50 p-3 rounded-xl w-64 sm:w-fit">
       <input
         type="text"
         value={refCode}
         readOnly
-        className="w-fit bg-transparent border-none outline-none text-purple-700 font-medium"
+        className="max-w-sm bg-transparent border-none outline-none text-purple-700 font-medium"
       />
       <button
         onClick={handleCopy}
