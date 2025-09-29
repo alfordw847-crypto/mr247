@@ -1,6 +1,7 @@
 import { createSuccessResponse, errorResponse } from "@/lib/api/api-response";
 import prisma from "@/lib/db";
 import { BannerSchema } from "@/zod-validation/banner-zod";
+import { NextResponse } from "next/server";
 export async function POST(req: Request) {
   try {
     const body = await req.json();
@@ -27,13 +28,16 @@ export async function GET(req: Request) {
 
     // If you want to check if banners exist
     if (!banners || banners.length === 0) {
-      return createSuccessResponse({
+      return NextResponse.json({
         data: [],
         message: "No banners found",
       });
     }
 
-    return createSuccessResponse(banners);
+    return NextResponse.json({
+      success: true,
+      banners,
+    });
   } catch (error) {
     console.error("Banner retrieval error:", error);
     return errorResponse(error);

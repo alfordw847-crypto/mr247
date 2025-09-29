@@ -38,6 +38,7 @@ export default function EditPackageDialog({ pkg }: EditPackageDialogProps) {
       price: pkg?.price,
       adLimit: pkg?.adLimit,
       rewardPerAd: pkg?.rewardPerAd,
+      initialEarn: pkg?.initialEarn,
     },
   });
 
@@ -105,6 +106,14 @@ export default function EditPackageDialog({ pkg }: EditPackageDialogProps) {
               label="Price"
               name="price"
               placeholder="Package price"
+              control={control}
+            />
+            <CustomFormField
+              fieldType={FormFieldType.INPUT}
+              label="Initial Earn"
+              name="initialEarn"
+              type="number"
+              placeholder="Initial earn "
               control={control}
             />
             <CustomFormField

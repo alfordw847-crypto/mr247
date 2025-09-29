@@ -24,7 +24,10 @@ const PackageList = ({ products }: { products?: Package[] }) => {
         <TableRow>
           <TableHead className="font-semibold">Product Name</TableHead>
           <TableHead>Price</TableHead>
+          <TableHead>Initial Earn</TableHead>
           <TableHead>Total Earn</TableHead>
+          <TableHead>Ad Limit</TableHead>
+          <TableHead>Earn per Ad</TableHead>
           <TableHead>Actions</TableHead>
         </TableRow>
       </TableHeader>
@@ -45,7 +48,10 @@ const PackageList = ({ products }: { products?: Package[] }) => {
             </TableCell>
 
             <TableCell>{product.price}</TableCell>
+            <TableCell>{product?.initialEarn}</TableCell>
             <TableCell>{product?.totalEarnings}</TableCell>
+            <TableCell>{product?.adLimit}</TableCell>
+            <TableCell>{product?.rewardPerAd}</TableCell>
 
             <TableCell className="flex gap-2">
               <EditPackageDialog pkg={product} />

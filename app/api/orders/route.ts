@@ -1,71 +1,125 @@
 import { AppError } from "@/lib/actions/actions-error-response";
 import { createSuccessResponse, errorResponse } from "@/lib/api/api-response";
 import prisma from "@/lib/db";
-import { OrderSchema } from "@/zod-validation/orderSchema";
+import { NextRequest } from "next/server";
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const validateData = OrderSchema.parse(body);
+    const { userId, packageId } = body;
 
-    // check if order exists for user + package
-    let order = await prisma.order.findFirst({
-      where: {
-        userId: validateData.userId,
-        packageId: validateData.packageId,
-        status: "paid",
-      },
-    });
-
-    if (order) {
-      if (order?.pendingOrder > 0) {
-        throw new AppError(
-          "Your order is pending wait 6 hours form confirmation!",
-          401
-        );
-      }
-      // update existing order
-      order = await prisma.order.update({
-        where: { id: order.id },
-        data: {
-          pendingOrder: 1,
-        },
-      });
-    } else {
-      // create new order
-      order = await prisma.order.create({
-        data: {
-          userId: validateData.userId,
-          packageId: validateData.packageId,
-          status: "pending",
-          pendingOrder: 1,
-        },
-      });
+    // 🔒 Validate input
+    if (!userId || !packageId) {
+      throw new AppError("Missing required fields: userId, packageId", 400);
     }
-    await prisma.transaction.create({
-      data: {
-        userId: validateData.userId,
-        amount: validateData.amount,
-        status: validateData?.type,
-        number: validateData?.number,
-        trnId: validateData?.tranId,
-        type: "deposit",
-        purl: validateData?.purl,
-      },
-    });
-    await prisma.user.update({
-      where: { id: order?.userId },
-      data: {
-        totalDeposits: {
-          increment: validateData.amount,
-        },
 
-        updatedAt: new Date(),
-      },
+    // 🟢 Run everything inside a transaction for safety
+    const result = await prisma.$transaction(async (tx) => {
+      // Fetch user & package
+      const [user, pkg] = await Promise.all([
+        tx.user.findUnique({ where: { id: userId } }),
+        tx.package.findUnique({ where: { id: packageId } }),
+      ]);
+
+      if (!user) throw new AppError("User not found", 404);
+      if (!pkg) throw new AppError("Package not found", 404);
+
+      // 🔒 Check balance
+      if (user.totalDeposits < pkg.price) {
+        throw new AppError("Insufficient balance", 400);
+      }
+
+      // Find or create order
+      let order = await tx.order.findFirst({
+        where: { userId, packageId },
+      });
+
+      if (order) {
+        order = await tx.order.update({
+          where: { id: order.id },
+          data: {
+            status: "paid",
+            numOfPur: (order.numOfPur ?? 0) + 1,
+          },
+        });
+      } else {
+        order = await tx.order.create({
+          data: {
+            userId: user.id,
+            packageId: pkg.id,
+            numOfPur: 1,
+            status: "paid",
+          },
+        });
+      }
+
+      // Deduct balance
+      await tx.user.update({
+        where: { id: user.id },
+        data: {
+          totalDeposits: { decrement: pkg.price },
+          updatedAt: new Date(),
+        },
+      });
+
+      // Referral bonus (one-time only)
+      if (user.referredBy) {
+        const referrer = await tx.user.findUnique({
+          where: { refCode: user.referredBy },
+        });
+
+        if (referrer) {
+          const existingReferral = await tx.referral.findFirst({
+            where: { referrerId: referrer.id, referredId: user.id },
+          });
+
+          if (!existingReferral) {
+            const bonusAmount = 100;
+
+            await tx.referral.create({
+              data: {
+                referrerId: referrer.id,
+                referredId: user.id,
+                bonus: bonusAmount,
+                rewarded: true,
+              },
+            });
+
+            await tx.user.update({
+              where: { id: referrer.id },
+              data: {
+                totalEarnings: { increment: bonusAmount },
+                refBonusEarned: { increment: bonusAmount },
+              },
+            });
+          }
+        }
+      }
+
+      // Manage Ad Views
+      const maxAdLimit = order.numOfPur * 5;
+      const adView = await tx.adView.upsert({
+        where: {
+          userId_packageId: { userId, packageId }, // ⚡ use composite unique key
+        },
+        update: {
+          maxViewAdd: maxAdLimit,
+          createdAt: new Date(),
+        },
+        create: {
+          userId,
+          packageId,
+          viewAd: 0,
+          maxViewAdd: maxAdLimit,
+        },
+      });
+
+      return { order, adView };
     });
-    return createSuccessResponse({ order });
+
+    return createSuccessResponse(result);
   } catch (error) {
-    console.error("Package creation error:", error);
+    console.error("Buy package error:", error);
     return errorResponse(error);
   }
 }

@@ -37,15 +37,15 @@ export const adminConfig: MenuItemProps[] = [
     href: "packages",
   },
   {
-    title: "Pending Order",
-    icon: Wallet,
-    href: "pending-orders",
-  },
-  {
     title: "Payment Requests",
     icon: Wallet,
-    href: "payment-request",
+    href: "transactions",
   },
+  // {
+  //   title: "Payment Requests",
+  //   icon: Wallet,
+  //   href: "payment-request",
+  // },
   {
     title: "Numbers",
     icon: Phone,

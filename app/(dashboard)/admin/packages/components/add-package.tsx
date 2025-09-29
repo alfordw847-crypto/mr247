@@ -32,6 +32,7 @@ export default function CreatePackageDialog() {
       price: undefined,
       adLimit: undefined,
       rewardPerAd: undefined,
+      initialEarn: undefined,
     },
   });
 
@@ -102,13 +103,21 @@ export default function CreatePackageDialog() {
               placeholder="Package price"
               control={control}
             />
+            <CustomFormField
+              fieldType={FormFieldType.INPUT}
+              label="Initial Earn"
+              name="initialEarn"
+              type="number"
+              placeholder="Initial earn "
+              control={control}
+            />
 
             <CustomFormField
               fieldType={FormFieldType.INPUT}
               label="Reward Per Ad"
               name="rewardPerAd"
               type="number"
-              placeholder="Package reward per ad"
+              placeholder="Reward per ad"
               control={control}
             />
             <CustomFormField
@@ -123,6 +132,7 @@ export default function CreatePackageDialog() {
               fieldType={FormFieldType.FILE_UPLOAD}
               label="Image URL"
               name="image"
+              file
               placeholder="https://example.com/image.jpg"
               control={control}
             />

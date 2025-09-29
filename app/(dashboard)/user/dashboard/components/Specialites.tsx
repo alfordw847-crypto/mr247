@@ -12,12 +12,13 @@ const SpecialtiesCarousel = () => {
   useEffect(() => {
     const fetchBanners = async () => {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/banners`);
-      const banners = await res.json();
-      setBanners(banners?.data?.data);
+      const data = await res.json();
+
+      setBanners(data?.banners);
     };
     fetchBanners();
   }, []);
-  console.log(banners);
+
   return (
     <motion.section className="bg-card/30   ">
       {/* Carousel */}

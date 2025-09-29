@@ -1,6 +1,7 @@
 import { createSuccessResponse, errorResponse } from "@/lib/api/api-response";
 import prisma from "@/lib/db";
 import { PackageSchema } from "@/zod-validation/package-zod";
+import { NextResponse } from "next/server";
 export const dynamic = "force-dynamic";
 export async function POST(req: Request) {
   try {
@@ -15,6 +16,7 @@ export async function POST(req: Request) {
         image: validateData.image,
         price: validateData.price,
         adLimit: validateData.adLimit,
+        initialEarn: validateData?.initialEarn,
         rewardPerAd: validateData.rewardPerAd,
       },
     });
@@ -48,8 +50,8 @@ export async function GET(req: Request) {
       prisma.package.count(),
     ]);
 
-    return createSuccessResponse({
-      data: packages,
+    return NextResponse.json({
+      packages,
       pagination: {
         total: totalCount,
         page: pageNumber,

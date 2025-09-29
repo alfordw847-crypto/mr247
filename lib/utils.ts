@@ -181,3 +181,8 @@ export function generateRefCode(length = 8) {
     .substring(2, 2 + length)
     .toUpperCase();
 }
+export const fetcher = (url: string) => fetch(url).then((res) => res.json());
+export const fetcherWithHeaders = (
+  url: string,
+  headers: Record<string, string>
+) => fetch(url, { headers }).then((res) => res.json());

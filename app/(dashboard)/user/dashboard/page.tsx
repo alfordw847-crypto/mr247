@@ -1,6 +1,7 @@
 import Balance from "./components/balance";
 import Products from "./components/products";
 import SpecialtiesCarousel from "./components/Specialites";
+import ContinuousTimer from "./components/timer";
 export const dynamic = "force-dynamic";
 const Page = () => {
   return (
@@ -8,7 +9,7 @@ const Page = () => {
       {/* Main Content */}
       <div className="pr-4">
         <SpecialtiesCarousel />
-
+        <ContinuousTimer />
         <Balance />
         <Products />
       </div>

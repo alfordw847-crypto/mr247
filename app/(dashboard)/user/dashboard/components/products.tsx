@@ -1,21 +1,9 @@
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { getCurrentUser } from "@/lib/auth";
 import { Star, Users } from "lucide-react";
 import GeneralPackageTab from "../general-package-card";
 import CompactPackage from "./contrubuted-package";
 
 export default async function Products() {
-  const user = await getCurrentUser();
-
-  const packagesResponse = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/api/packages`
-  );
-  const data = await packagesResponse.json();
-  const orderResponse = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/api/orders?userId=${user?.id}`
-  );
-  const orderData = await orderResponse.json();
-
   return (
     <div className="max-w-6xl mx-auto p-6 mb-24">
       {/* Page Header */}
@@ -62,9 +50,9 @@ export default async function Products() {
           </TabsTrigger>
         </TabsList>
         {/* Top Products */}
-        <GeneralPackageTab packages={data?.data?.data} />
+        <GeneralPackageTab />
         {/* Contributed Products */}
-        <CompactPackage pcks={orderData?.data?.data} />
+        <CompactPackage />
       </Tabs>
     </div>
   );

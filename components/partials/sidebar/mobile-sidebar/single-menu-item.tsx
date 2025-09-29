@@ -23,7 +23,7 @@ const SingleMenuItem = ({ item }: { item: any; collapsed: boolean }) => {
             <item.icon className="w-5 h-5" />
           </span>
         )}
-        <div className="text-box flex-grow text-base font-semibold">
+        <div className="text-box flex-grow text-sm md:text-base font-semibold">
           {title}
         </div>
         {badge && <Badge className=" rounded">{item.badge}</Badge>}

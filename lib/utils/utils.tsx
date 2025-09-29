@@ -10,7 +10,6 @@ interface YouTubePlayerProps {
 declare global {
   interface Window {
     YT: any;
-    onYouTubeIframeAPIReady: () => void;
   }
 }
 
@@ -19,14 +18,13 @@ export default function YouTubePlayer({ videoId, onEnd }: YouTubePlayerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Load YouTube API once
+    // Load YouTube API only once
     if (!window.YT) {
       const tag = document.createElement("script");
       tag.src = "https://www.youtube.com/iframe_api";
       document.body.appendChild(tag);
     }
 
-    // Create player when API is ready
     const interval = setInterval(() => {
       if (window.YT && window.YT.Player && containerRef.current) {
         clearInterval(interval);
@@ -37,10 +35,10 @@ export default function YouTubePlayer({ videoId, onEnd }: YouTubePlayerProps) {
             height: "360",
             playerVars: {
               autoplay: 1,
-              controls: 0, // hide controls to prevent forward
+              controls: 0,
               modestbranding: 1,
               rel: 0,
-              disablekb: 1, // disable keyboard shortcuts
+              disablekb: 1,
             },
             events: {
               onStateChange: (event: any) => {
@@ -56,7 +54,14 @@ export default function YouTubePlayer({ videoId, onEnd }: YouTubePlayerProps) {
       }
     }, 100);
 
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+      // Destroy player safely
+      if (playerRef.current && playerRef.current.destroy) {
+        playerRef.current.destroy();
+        playerRef.current = null;
+      }
+    };
   }, [videoId, onEnd]);
 
   return <div ref={containerRef} />;

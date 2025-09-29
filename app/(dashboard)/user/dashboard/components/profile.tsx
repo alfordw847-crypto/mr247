@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import ProfileUpdateDialog from "../../profile/components/profile-update";
 import RefCodeBox from "../../profile/components/ref-code";
+import PaymentDialog from "./payment-interface";
 import WithdrawalDialog from "./withdrow-modal";
 type UserWithCount = UserWithEverything & {
   count: number;
@@ -167,7 +168,11 @@ export default function UserProfile({ user, userStart }: UserProfileProps) {
               Quick Actions
             </h3>
             <div className="flex flex-col justify-start items-start gap-3">
-              <WithdrawalDialog user={user} />
+              <div className="flex items-center gap-4">
+                {" "}
+                <PaymentDialog />
+                <WithdrawalDialog user={user} />
+              </div>
               {/* <TeamPage /> */}
               <div>
                 <p>Referral and earn 100 ৳</p>
@@ -212,6 +217,18 @@ export default function UserProfile({ user, userStart }: UserProfileProps) {
                   >
                     {tx.type === "deposit" ? "+" : "-"}${tx.amount}
                   </p>
+
+                  <span
+                    className={`px-3 py-1 rounded-full text-white text-sm ${
+                      tx.status === "pending"
+                        ? "bg-yellow-500"
+                        : tx.status === "approved"
+                        ? "bg-green-500"
+                        : "bg-red-500"
+                    }`}
+                  >
+                    {tx.status.charAt(0).toUpperCase() + tx.status.slice(1)}
+                  </span>
                 </li>
               ))}
             </ul>

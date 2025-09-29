@@ -2,33 +2,25 @@
 
 import bio from "@/public/icons/biao.png";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import useSWR from "swr";
+
+const fetcher = (url: string) =>
+  fetch(url, { cache: "no-store" }).then((res) => {
+    if (!res.ok) throw new Error("Failed to fetch balance");
+    return res.json();
+  });
 
 export default function Balance() {
-  const [data, setData] = useState<{
-    totalEarnings: number;
-    totalWithdrawals: number;
-  } | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { data, error, isLoading } = useSWR(
+    `${process.env.NEXT_PUBLIC_API_URL}/api/balance/earning`,
+    fetcher,
+    {
+      refreshInterval: 3000,
+      revalidateOnFocus: true,
+    }
+  );
 
-  useEffect(() => {
-    const fetchBalance = async () => {
-      try {
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/balance/earning`,
-          { cache: "no-store" }
-        );
-        const res = await response.json();
-        setData(res.data);
-      } catch (err) {
-        console.error("Failed to fetch balance:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchBalance();
-  }, []);
+  const balance = data?.data;
 
   return (
     <div className="p-6 bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 rounded-2xl shadow-xl text-white">
@@ -47,8 +39,10 @@ export default function Balance() {
       </div>
 
       {/* Balance Section */}
-      {loading ? (
+      {isLoading ? (
         <p className="text-center text-yellow-100">Loading...</p>
+      ) : error ? (
+        <p className="text-center text-red-300">Failed to load balance</p>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="bg-white/10 p-4 rounded-xl hover:bg-white/20 transition">
@@ -56,7 +50,7 @@ export default function Balance() {
               Total Earned
             </span>
             <span className="text-2xl font-bold text-yellow-100">
-              {data?.totalEarnings ?? 0} ৳
+              {250120 + balance?.totalEarnings} ৳
             </span>
           </div>
           <div className="bg-white/10 p-4 rounded-xl hover:bg-white/20 transition">
@@ -64,7 +58,7 @@ export default function Balance() {
               Total Withdraw
             </span>
             <span className="text-2xl font-bold text-yellow-100">
-              {data?.totalWithdrawals ?? 0} ৳
+              {350300 + balance?.totalWithdrawals} ৳
             </span>
           </div>
         </div>

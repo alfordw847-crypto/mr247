@@ -16,6 +16,12 @@ export const PackageSchema = z.object({
       .number({ invalid_type_error: "Price must be a number" })
       .positive({ message: "Price must be greater than 0" })
   ),
+  initialEarn: z.preprocess(
+    (val) => Number(val),
+    z
+      .number({ invalid_type_error: "initialEarn must be a number" })
+      .positive({ message: "initialEarn must be greater than 0" })
+  ),
   adLimit: z.preprocess(
     (val) => Number(val),
     z

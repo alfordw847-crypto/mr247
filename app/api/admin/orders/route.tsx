@@ -1,5 +1,6 @@
-import { createSuccessResponse, errorResponse } from "@/lib/api/api-response";
+import { errorResponse } from "@/lib/api/api-response";
 import prisma from "@/lib/db";
+import { NextResponse } from "next/server";
 export const dynamic = "force-dynamic";
 
 export async function GET(req: Request) {
@@ -38,8 +39,8 @@ export async function GET(req: Request) {
       }),
     ]);
 
-    return createSuccessResponse({
-      data: orders,
+    return NextResponse.json({
+      orders,
       pagination: {
         total: totalCount,
         page: pageNumber,

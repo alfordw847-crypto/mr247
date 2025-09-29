@@ -28,3 +28,6 @@ export type UserWithEverything = Prisma.UserGetPayload<{
     referralsGot: true;
   };
 }>;
+export type TransactionWithUser = Prisma.TransactionGetPayload<{
+  include: { user: true };
+}>;

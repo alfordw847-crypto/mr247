@@ -22,7 +22,7 @@ export default function RefCodeBox({ refCode }: RefCodeProps) {
         type="text"
         value={refCode}
         readOnly
-        className="flex-1 bg-transparent border-none outline-none text-purple-700 font-medium"
+        className="w-fit bg-transparent border-none outline-none text-purple-700 font-medium"
       />
       <button
         onClick={handleCopy}

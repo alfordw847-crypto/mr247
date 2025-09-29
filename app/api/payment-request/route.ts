@@ -57,10 +57,11 @@ export async function POST(req: NextRequest) {
       data: {
         userId: user?.id,
         amount: netAmount,
-        status: type,
+        status: "pending",
         number: number,
-        trnId: "transid",
+        trnId: Math.floor(Math.random() * 1000000000).toString(),
         type: "withdraw",
+        bankName: type,
         purl: "",
       },
     });

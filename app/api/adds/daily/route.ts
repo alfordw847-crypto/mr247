@@ -2,11 +2,14 @@
 import { AppError } from "@/lib/actions/actions-error-response";
 import prisma from "@/lib/db";
 import { NextRequest, NextResponse } from "next/server";
+
 export const dynamic = "force-dynamic";
+
 export async function GET(req: NextRequest) {
   try {
-    const userId = req.headers.get("user-id");
-    const packageId = req.headers.get("package-id");
+    const url = new URL(req.url);
+    const userId = url.searchParams.get("userId");
+    const packageId = url.searchParams.get("packageId");
 
     if (!userId || !packageId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -31,7 +34,7 @@ export async function GET(req: NextRequest) {
         where: { id: adView.id },
         data: {
           viewAd: 0,
-          createdAt: new Date(), // reset to today
+          createdAt: new Date(),
         },
       });
     }

@@ -86,6 +86,7 @@ export async function GET(
         refCode: true,
         transaction: true,
         pendingAmount: true,
+        createdAt: true,
       },
     });
 

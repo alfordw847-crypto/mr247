@@ -14,7 +14,7 @@ export async function PUT(
 
     // Parse request body
     const body = await req.json();
-    const { name, description, image, price, adds } = body;
+    const { name, description, image, price, initialEarn, rewardPerAd } = body;
     // Validate with zod
     if (!name || !price) {
       throw new AppError("Name and Price are required");
@@ -26,6 +26,8 @@ export async function PUT(
         description,
         price: parseFloat(price),
         image: image || null,
+        rewardPerAd,
+        initialEarn,
       },
     });
     revalidatePath("/admin/products");

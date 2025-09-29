@@ -1,9 +1,9 @@
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-
 import Pagination from "@/components/PaginationComponents";
-import { allPackagesPage } from "@/config/packges";
+import { ScrollBar } from "@/components/ui/scroll-area";
+import { ScrollArea } from "@radix-ui/react-scroll-area";
 import CreatePackageDialog from "./components/add-package";
 import PackageList from "./components/package-list";
+
 export const dynamic = "force-dynamic";
 export default async function AdminDashboardPage({
   searchParams,
@@ -12,8 +12,13 @@ export default async function AdminDashboardPage({
 }) {
   const page = (searchParams?.page as string) || "1";
   const limit = (searchParams?.limit as string) || "10";
-  const { data: products } = await allPackagesPage({ page, limit });
-  const { pagination } = products || {};
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/api/packages?limit=${limit}&&page=${page}`
+  );
+  const data = await res.json();
+  const packages = data?.packages;
+  const pagination = data?.pagination;
+
   return (
     <div className="border p-4 bg-card rounded-md space-y-2">
       <div className="flex items-center justify-between">
@@ -24,7 +29,7 @@ export default async function AdminDashboardPage({
       </div>
       <hr className="pb-4" />
       <ScrollArea className="pb-4">
-        <PackageList products={products?.data} />
+        <PackageList products={packages} />
         <ScrollBar orientation="horizontal" />
       </ScrollArea>
       {pagination && pagination?.total > pagination?.limit && (

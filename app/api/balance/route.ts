@@ -3,7 +3,8 @@ import prisma from "@/lib/db";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
-  const userId = req.headers.get("user-id");
+  const url = new URL(req.url);
+  const userId = url.searchParams.get("userId");
   if (!userId)
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 

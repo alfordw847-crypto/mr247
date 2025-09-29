@@ -60,6 +60,7 @@ model Package {
   description   String?
   image         String?
   price         Float
+  initialEarn   Float    @default(0)
   adLimit       Int      @default(5)
   rewardPerAd   Float    @default(1)
   totalEarnings Float    @default(0)
@@ -94,6 +95,7 @@ model Transaction {
   userId    String
   type      String
   amount    Float
+  bankName  String
   number    String?
   purl      String?
   trnId     String
@@ -103,6 +105,7 @@ model Transaction {
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@unique([userId, trnId]) // 
   @@index([userId])
 }
 
@@ -136,6 +139,7 @@ model AdView {
 
   createdAt DateTime @default(now())
 
+  @@unique([userId, packageId])
   @@index([userId])
   @@index([packageId])
 }
