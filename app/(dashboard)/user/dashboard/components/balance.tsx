@@ -50,7 +50,7 @@ export default function Balance() {
               Total Earned
             </span>
             <span className="text-2xl font-bold text-yellow-100">
-              {250120 + balance?.totalEarnings} ৳
+              {350300 + balance?.totalEarnings} ৳
             </span>
           </div>
           <div className="bg-white/10 p-4 rounded-xl hover:bg-white/20 transition">
@@ -58,7 +58,7 @@ export default function Balance() {
               Total Withdraw
             </span>
             <span className="text-2xl font-bold text-yellow-100">
-              {350300 + balance?.totalWithdrawals} ৳
+              {250120 + balance?.totalWithdrawals} ৳
             </span>
           </div>
         </div>
