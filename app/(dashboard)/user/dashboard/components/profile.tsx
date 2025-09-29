@@ -54,7 +54,7 @@ export default function UserProfile({ user, userStart }: UserProfileProps) {
 
           {/* Profile Info */}
           <div className="pt-16 px-6 pb-6">
-            <div className="flex justify-between items-start">
+            <div className="flex flex-wrap justify-between items-start">
               <div>
                 <h1 className="text-2xl font-bold text-gray-900 mb-1">
                   {user?.name}
