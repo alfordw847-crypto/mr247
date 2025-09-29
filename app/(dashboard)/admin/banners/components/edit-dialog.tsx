@@ -9,52 +9,73 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Banner } from "@prisma/client";
 import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
+
+import CustomFormField, { FormFieldType } from "@/components/custom-form-field";
+import { Form } from "@/components/ui/form";
+
+// ✅ Validation schema
+const bannerSchema = z.object({
+  name: z.string().min(2, "Banner name is required"),
+  url: z.string().url("Please enter a valid URL"),
+});
+
+type BannerFormValues = z.infer<typeof bannerSchema>;
 
 interface EditBannerDialogProps {
   banner: Banner | null;
-  onUpdate?: (updatedBanner: Banner) => void; // callback to update parent state
+  onUpdate?: (updatedBanner: Banner) => void;
 }
 
 export default function EditBannerDialog({
   banner,
   onUpdate,
 }: EditBannerDialogProps) {
-  const [name, setName] = useState("");
-  const [url, setUrl] = useState("");
-  const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
 
+  const form = useForm<BannerFormValues>({
+    resolver: zodResolver(bannerSchema),
+    defaultValues: {
+      name: "",
+      url: "",
+    },
+  });
+
+  // ✅ populate form when banner changes
   useEffect(() => {
     if (banner) {
-      setName(banner.name || "");
-      setUrl(banner.url || "");
+      form.reset({
+        name: banner.name || "",
+        url: banner.url || "",
+      });
     }
-  }, [banner]);
+  }, [banner, form]);
 
-  const handleUpdate = async () => {
+  const handleUpdate = async (values: BannerFormValues) => {
     if (!banner) return;
     setLoading(true);
     try {
       const res = await fetch(`/api/banners/${banner.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, url }),
+        body: JSON.stringify(values),
       });
 
       const updated = await res.json();
       if (res.ok) {
-        onUpdate?.(updated.data); // Update parent component state
-        setOpen(false); // close dialog
+        onUpdate?.(updated.data);
+        setOpen(false);
+        window.location.reload();
       } else {
         console.error("Update failed", updated.error);
-        alert(updated.error || "Update failed");
       }
     } catch (err) {
       console.error("Update failed", err);
-      alert("Update failed");
     } finally {
       setLoading(false);
     }
@@ -69,25 +90,36 @@ export default function EditBannerDialog({
         <DialogHeader>
           <DialogTitle>Edit Banner</DialogTitle>
         </DialogHeader>
-        <div className="space-y-4">
-          <Input
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Banner Name"
-            disabled={loading}
-          />
-          <Input
-            value={url}
-            onChange={(e) => setUrl(e.target.value)}
-            placeholder="Banner URL"
-            disabled={loading}
-          />
-        </div>
-        <DialogFooter>
-          <Button onClick={handleUpdate} disabled={loading}>
-            {loading ? "Updating..." : "Update"}
-          </Button>
-        </DialogFooter>
+
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(handleUpdate)}
+            className="space-y-4"
+          >
+            <CustomFormField
+              fieldType={FormFieldType.INPUT}
+              label="Banner Name"
+              name="name"
+              placeholder="Enter banner name"
+              control={form.control}
+            />
+
+            <CustomFormField
+              fieldType={FormFieldType.FILE_UPLOAD}
+              label="Banner URL"
+              name="url"
+              file
+              placeholder="Enter banner URL"
+              control={form.control}
+            />
+
+            <DialogFooter>
+              <Button type="submit" disabled={loading}>
+                {loading ? "Updating..." : "Update"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );

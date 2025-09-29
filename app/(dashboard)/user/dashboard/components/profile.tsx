@@ -215,7 +215,8 @@ export default function UserProfile({ user, userStart }: UserProfileProps) {
                       tx.type === "deposit" ? "text-green-600" : "text-red-600"
                     }`}
                   >
-                    {tx.type === "deposit" ? "+" : "-"}${tx.amount}
+                    {tx.type === "deposit" ? "+" : "-"}
+                    {tx.amount} ৳
                   </p>
 
                   <span
