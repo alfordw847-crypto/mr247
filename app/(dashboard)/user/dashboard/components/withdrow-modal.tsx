@@ -35,7 +35,7 @@ export default function WithdrawalDialog({ user }: WithdrawalDialogProps) {
   const router = useRouter();
   const now = new Date();
   const hours = now.getHours();
-  const isWithinTime = hours >= 8 && hours < 22;
+  const isWithinTime = hours >= 10 && hours < 17;
 
   const quickAmounts = [900, 1000, 2000, 5000, 10000, 20000];
 
@@ -62,7 +62,7 @@ export default function WithdrawalDialog({ user }: WithdrawalDialogProps) {
       return;
     }
     if (!isWithinTime) {
-      toast.error("Withdrawals are only allowed between 8:00 AM – 10:00 PM.");
+      toast.error("Withdrawals are only allowed between 10:00 AM – 5:00 PM.");
       return;
     }
 
@@ -305,7 +305,7 @@ export default function WithdrawalDialog({ user }: WithdrawalDialogProps) {
               {isProcessing
                 ? "Processing..."
                 : !isWithinTime
-                ? "⏰ Withdrawals allowed 8:00 AM – 10:00 PM"
+                ? "⏰ Withdrawals allowed 10:00 AM – 5:00 PM"
                 : "💰 Withdraw"}
             </button>
           </form>
@@ -316,7 +316,7 @@ export default function WithdrawalDialog({ user }: WithdrawalDialogProps) {
               📋 Withdrawal Rules
             </h3>
             <ul className="space-y-2 text-xs text-gray-700">
-              <li>• Withdrawal time: 8:00 AM – 10:00 PM</li>
+              <li>• Withdrawal time: 10:00 AM – 5:00 PM</li>
               <li>• Minimum per transaction: ৳{MIN_WITHDRAW}</li>
               <li>• Maximum per transaction: ৳{MAX_WITHDRAW}</li>
               <li>• Fee: 10% will be deducted</li>
