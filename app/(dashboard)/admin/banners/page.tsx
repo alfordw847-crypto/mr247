@@ -17,10 +17,10 @@ export default async function page() {
 
       {/* Banners Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {banners?.data?.length === 0 ? (
+        {banners?.banners?.length === 0 ? (
           <p className="text-gray-500 col-span-full">No banners found.</p>
         ) : (
-          banners?.data?.map((banner: any) => (
+          banners?.banners?.map((banner: any) => (
             <div
               key={banner.id}
               className="bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden hover:shadow-lg transition-shadow"
