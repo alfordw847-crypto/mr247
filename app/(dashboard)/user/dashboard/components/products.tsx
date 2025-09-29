@@ -5,7 +5,7 @@ import CompactPackage from "./contrubuted-package";
 
 export default async function Products() {
   return (
-    <div className="max-w-6xl mx-auto p-6 mb-24">
+    <div className="container mb-24">
       {/* Page Header */}
       <h1 className="text-2xl font-bold mb-6">Products</h1>
 
@@ -13,7 +13,7 @@ export default async function Products() {
       <Tabs defaultValue="top" className="w-full">
         <TabsList
           className="
-          grid grid-cols-2 w-full max-w-md mx-auto mb-8
+          grid sm:grid-cols-2 w-full max-w-md mx-auto h-auto gap-2 mb-8
           rounded-2xl p-1
           bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500
           shadow-lg

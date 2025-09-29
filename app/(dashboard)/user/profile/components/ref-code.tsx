@@ -1,5 +1,6 @@
 "use client";
 
+import { Input } from "@/components/ui/input";
 import { Check, Copy } from "lucide-react";
 import { useState } from "react";
 
@@ -17,16 +18,16 @@ export default function RefCodeBox({ refCode }: RefCodeProps) {
   };
 
   return (
-    <div className="flex items-center gap-2 bg-purple-50 p-3 rounded-xl w-64 sm:w-fit">
-      <input
+    <div className="flex items-center gap-2 bg-purple-50 p-3 rounded-xl w-full max-w-md">
+      <Input
         type="text"
         value={refCode}
         readOnly
-        className="max-w-sm bg-transparent border-none outline-none text-purple-700 font-medium"
+        className="flex-1 bg-purple-50 border-none outline-none text-purple-700 font-medium text-sm sm:text-base"
       />
       <button
         onClick={handleCopy}
-        className="p-2 bg-purple-100 hover:bg-purple-200 rounded-lg transition-colors"
+        className="p-2 bg-purple-100 hover:bg-purple-200 rounded-lg transition-colors shrink-0"
       >
         {copied ? (
           <Check className="w-5 h-5 text-green-600" />

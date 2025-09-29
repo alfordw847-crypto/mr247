@@ -196,7 +196,7 @@ export default function UserProfile({ user, userStart }: UserProfileProps) {
               {user.transaction.map((tx) => (
                 <li
                   key={tx.id}
-                  className="flex items-center justify-between py-3 px-4"
+                  className="flex flex-wrap items-center justify-between py-3 px-4 gap-2"
                 >
                   <>
                     <p className="text-sm font-medium text-gray-900">
