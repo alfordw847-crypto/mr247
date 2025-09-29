@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
-  DialogFooter,
   DialogHeader,
   DialogTrigger,
 } from "@/components/ui/dialog";
@@ -126,16 +125,16 @@ export default function AdDialog({ userId, packageId }: AdDialogProps) {
                 onEnd={watchAd}
               />
               <p>Watch the full ad to earn your reward.</p>
-              <Button disabled={isWatching || loadingBalance} onClick={watchAd}>
+              {/* <Button disabled={isWatching || loadingBalance} onClick={watchAd}>
                 {isWatching ? "Watching..." : "Mark as Watched"}
-              </Button>
+              </Button> */}
             </div>
           ) : (
             <p>No ads available today.</p>
           )}
         </div>
 
-        <DialogFooter className="mt-4">
+        {/* <DialogFooter className="mt-4">
           <Button
             variant="outline"
             onClick={nextAd}
@@ -143,7 +142,7 @@ export default function AdDialog({ userId, packageId }: AdDialogProps) {
           >
             Next Ad
           </Button>
-        </DialogFooter>
+        </DialogFooter> */}
       </DialogContent>
     </Dialog>
   );
